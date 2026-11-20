@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>phake DUMMY — reader settings (v0.02)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <div class="kicker">phake DUMMY · v0.02</div>
+    <h1>Reader settings</h1>
+    <section class="panel notice">
+        <h2>Shared browser warning</h2>
+        <p>Preferences belong to this browser profile, not a particular person. Anyone sharing the profile can inherit them. For children, use a separate browser profile; these settings are not parental controls. AI output can be unpredictable.</p>
+        <p>Insults and philosophical woodshed mode require separate opt-in. Neither is enabled by default.</p>
+    </section>
+
+    <form id="form">
+        <section class="panel">
+            <h2>Expression and inquiry</h2>
+            <label for="grade">Preferred reading grade level</label>
+            <select id="grade" name="grade">
+                <option value="5">Grade 5</option>
+                <option value="6">Grade 6</option>
+                <option value="7">Grade 7</option>
+                <option value="8">Grade 8</option>
+                <option value="9">Grade 9</option>
+                <option value="10">Grade 10</option>
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+                <option value="undergraduate">Undergraduate</option>
+                <option value="graduate">Graduate</option>
+                <option value="specialist">Specialist / scholarly</option>
+            </select>
+            <p class="muted"><small>This is a guide to prose complexity, not a ceiling on thought.</small></p>
+            <div class="panel notice">
+                <strong>Beware the fifth-grade flattening.</strong>
+                <p>Much contemporary communication is simplified, sometimes toward fifth-grade readability. Accessibility can be valuable; habitual simplification can also diminish our encounters with difficult language and ideas. Reading-level scores are crude proxies, not measures of wisdom.</p>
+                <p><a id="songLink" href="#" aria-disabled="true">Our Fifth Grade Level song (add its URL in the configuration)</a></p>
+            </div>
+            <label class="check"><input type="checkbox" name="stretch"> Occasionally stretch the prose beyond my selected level</label>
+            <label for="granularity">Scholarly granularity</label>
+            <select name="granularity" id="granularity">
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="deep">Deep</option>
+            </select>
+            <label for="art">Art / illustration references</label>
+            <select name="art" id="art">
+                <option value="rare">Rare</option>
+                <option value="occasional">Occasional</option>
+                <option value="frequent">Frequent</option>
+            </select>
+            <label for="ai">Preferred AI for polyphonic detours</label>
+            <select name="ai" id="ai">
+                <option value="mixed">Mixed / no preference</option>
+                <option value="chatgpt">ChatGPT</option>
+                <option value="gemini">Gemini</option>
+                <option value="claude">Claude</option>
+            </select>
+        </section>
+
+        <fieldset>
+            <legend>Optional Skeltonian insults</legend>
+            <label class="check"><input type="checkbox" name="insultsEnabled"> Enable playful verbal mischief</label>
+            <label for="bite">Coddling 10 ↔ bitey 1: <output id="biteValue">7</output></label>
+            <input type="range" name="bite" id="bite" min="1" max="10" value="7">
+            <p class="muted"><small>Permitted terms (none selected by default):</small></p>
+            <label class="check"><input type="checkbox" name="terms" value="putz"> putz</label>
+            <label class="check"><input type="checkbox" name="terms" value="shmuck"> shmuck</label>
+            <label class="check"><input type="checkbox" name="terms" value="jackass"> jackass</label>
+            <p><small>Ridicule pretension and ideas, not identity or vulnerability. The reader may revoke consent at any time.</small></p>
+        </fieldset>
+
+        <fieldset>
+            <legend>The Philosophical Woodshed</legend>
+            <p>Opt in to serious scrutiny of your claims and inferences. The examiner must be willing to admit defeat or error.</p>
+            <label class="check"><input type="checkbox" name="woodshedEnabled"> I consent to rigorous examination of my arguments</label>
+            <label for="woodshedMethod">Preferred method</label>
+            <select name="woodshedMethod" id="woodshedMethod">
+                <option value="elenchus">Socratic elenchus</option>
+                <option value="disputation">Scholastic disputation</option>
+                <option value="reductio">Reductio ad absurdum</option>
+                <option value="adversarial">Adversarial examination</option>
+            </select>
+            <label for="woodshedIntensity">Intensity: <output id="woodshedValue">3</output>/5</label>
+            <input type="range" name="woodshedIntensity" id="woodshedIntensity" min="1" max="5" value="3">
+            <label class="check"><input type="checkbox" name="woodshedHumor"> Permit humorous ridicule of arguments, never of personal vulnerabilities</label>
+            <p><small>Consent is revocable. Aporia is allowed; manufactured refutations are not.</small></p>
+        </fieldset>
+
+        <button type="submit">Save preferences</button>
+        <button type="button" class="secondary" id="reset">Reset defaults</button>
+        <a class="button secondary" id="back" href="index.html">Return to doorway</a>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+    <p><small>No analytics, accounts, or server-side preference storage in this prototype. Your settings are included in the prompt sent to ChatGPT when you launch an odyssey.</small></p>
+</main>
+<script>
+    "use strict";
+
+    const SETTINGS_KEY = "phakeDummySettingsV2";
+    const FIFTH_GRADE_SONG_URL = ""; // Add a real public song URL here when ready.
+    const defaults = {
+        grade: "12", granularity: "moderate", art: "occasional", ai: "mixed",
+        stretch: false, insultsEnabled: false, bite: 7, terms: [],
+        woodshedEnabled: false, woodshedMethod: "elenchus",
+        woodshedIntensity: 3, woodshedHumor: false
+    };
+
+    const form = document.getElementById("form");
+    const status = document.getElementById("status");
+    const songLink = document.getElementById("songLink");
+    const query = new URLSearchParams(window.location.search);
+    const returnUrl = query.get("return");
+
+    if (FIFTH_GRADE_SONG_URL) {
+        songLink.href = FIFTH_GRADE_SONG_URL;
+        songLink.removeAttribute("aria-disabled");
+    } else {
+        songLink.removeAttribute("href");
+        songLink.textContent = "Fifth Grade Level song — link coming soon";
+    }
+
+    // Only allow a return URL on this same origin.
+    if (returnUrl) {
+        try {
+            const destination = new URL(returnUrl);
+            if (destination.origin === window.location.origin) {
+                document.getElementById("back").href = destination.href;
+            }
+        } catch { /* Keep the default return link. */ }
+    }
+
+    function populate() {
+        let saved = {};
+        try {
+            saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+        } catch { /* Fall back to defaults. */ }
+
+        const settings = { ...defaults, ...saved };
+        for (const [name, value] of Object.entries(settings)) {
+            if (name === "terms") {
+                form.querySelectorAll('[name="terms"]').forEach(input => {
+                    input.checked = Array.isArray(value) && value.includes(input.value);
+                });
+            } else if (typeof value === "boolean") {
+                form.elements[name].checked = value;
+            } else if (form.elements[name]) {
+                form.elements[name].value = value;
+            }
+        }
+        updateOutputs();
+    }
+
+    function updateOutputs() {
+        document.getElementById("biteValue").value = form.elements.bite.value;
+        document.getElementById("woodshedValue").value = form.elements.woodshedIntensity.value;
+    }
+
+    form.elements.bite.addEventListener("input", updateOutputs);
+    form.elements.woodshedIntensity.addEventListener("input", updateOutputs);
+
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+        const settings = {
+            grade: form.elements.grade.value,
+            granularity: form.elements.granularity.value,
+            art: form.elements.art.value,
+            ai: form.elements.ai.value,
+            stretch: form.elements.stretch.checked,
+            insultsEnabled: form.elements.insultsEnabled.checked,
+            bite: Number(form.elements.bite.value),
+            terms: [...form.querySelectorAll('[name="terms"]:checked')].map(input => input.value),
+            woodshedEnabled: form.elements.woodshedEnabled.checked,
+            woodshedMethod: form.elements.woodshedMethod.value,
+            woodshedIntensity: Number(form.elements.woodshedIntensity.value),
+            woodshedHumor: form.elements.woodshedHumor.checked
+        };
+
+        try {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+            status.textContent = "Preferences saved in this browser profile.";
+        } catch {
+            status.textContent = "Storage unavailable: preferences could not be saved.";
+        }
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+        try {
+            localStorage.removeItem(SETTINGS_KEY);
+            populate();
+            status.textContent = "Preferences reset to defaults.";
+        } catch {
+            status.textContent = "Storage unavailable: reset failed.";
+        }
+    });
+
+    populate();
+</script>
+</body>
+</html>

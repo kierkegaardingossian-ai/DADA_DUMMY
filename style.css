@@ -1,0 +1,27 @@
+:root { color-scheme: light; --ink:#242821; --muted:#5e675b; --paper:#f7f5ee; --panel:#fffdf7; --line:#d7d8c9; --accent:#365e4b; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.65 system-ui,-apple-system,sans-serif; }
+main { max-width:780px; margin:3.5rem auto; padding:0 1.25rem 4rem; }
+h1 { font:700 clamp(2rem,5vw,3.1rem)/1.1 Georgia,serif; letter-spacing:-.03em; margin:.4rem 0 1rem; }
+h2 { font:700 1.35rem Georgia,serif; margin:0 0 .6rem; }
+p { margin:.7rem 0 1rem; }
+a { color:var(--accent); }
+.kicker { text-transform:uppercase; letter-spacing:.18em; font-size:.74rem; font-weight:700; color:var(--accent); }
+.muted, small { color:var(--muted); }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.25rem; margin:1.2rem 0; }
+.notice { border-left:4px solid var(--accent); }
+button, .button { appearance:none; border:1px solid var(--accent); border-radius:8px; background:var(--accent); color:white; font:600 .95rem system-ui; padding:.8rem 1rem; cursor:pointer; text-decoration:none; display:inline-block; margin:.3rem .5rem .3rem 0; }
+button.secondary, .button.secondary { background:transparent; color:var(--accent); }
+button:disabled { opacity:.45; cursor:not-allowed; }
+label { display:block; margin:1rem 0 .35rem; font-weight:600; }
+select, input[type=text] { width:100%; max-width:540px; padding:.65rem; border:1px solid #a7afa1; border-radius:6px; background:white; color:var(--ink); font:inherit; }
+input[type=range] { width:100%; max-width:420px; accent-color:var(--accent); }
+.check { display:flex; align-items:flex-start; gap:.55rem; font-weight:400; margin:.65rem 0; }
+.check input { margin-top:.38rem; }
+fieldset { border:1px solid var(--line); border-radius:10px; margin:1.4rem 0; padding:1rem 1.2rem; }
+legend { font-weight:700; padding:0 .4rem; }
+pre { white-space:pre-wrap; overflow-wrap:anywhere; padding:1rem; background:#eeeee6; border-radius:8px; max-height:350px; overflow:auto; font-size:.82rem; }
+nav { display:flex; gap:1rem; flex-wrap:wrap; }
+.status { min-height:1.5rem; font-weight:600; }
+.row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem; }
+hr { border:0; border-top:1px solid var(--line); margin:1.5rem 0; }
