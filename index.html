@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>phake DUMMY — the doorway (v0.03)</title>
+    <title>phake DUMMY — the doorway (v0.04)</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* The direct-launch screen is intentionally quiet and temporary. */
@@ -36,7 +36,7 @@
     <small>No account. No progress tracking. No guarantee of enlightenment.</small>
 </div>
 <main>
-    <div class="kicker">Provisional apparatus · v0.03</div>
+    <div class="kicker">Provisional apparatus · v0.04</div>
     <h1>phake DUMMY</h1>
     <p>An eccentric doorway to a helical, polyphonic odyssey. No account here, no analytics, no promise of easy answers.</p>
 
@@ -56,12 +56,12 @@
             <summary>Inspect the exact launch prompt</summary>
             <pre id="preview"></pre>
         </details>
-        <p><small>The launch prompt contains public URLs to plain-text files. ChatGPT must retrieve them; retrieval is not guaranteed. If it cannot, it should say so.</small></p>
+        <p><small>The launch prompt contains public URLs to plain-text files. The selected AI must retrieve them; retrieval is not guaranteed. If it cannot, it should say so.</small></p>
     </section>
 
     <nav>
         <a href="settings.html">Reader settings</a>
-        <a href="?slug=defenestration_cat">Sample odyssey</a>
+        <a href="?slug=defenestration_cat&q=1">Sample odyssey: "Defenestration Cat"</a>
     </nav>
 </main>
 <script>
@@ -79,6 +79,7 @@
 
     const SETTINGS_KEY = "phakeDummySettingsV2";
     const CHATGPT_URL = "https://chatgpt.com/";
+    const CLAUDE_URL = "https://claude.ai/new";
     const MAX_TEST_URL_LENGTH = 5000; // A conservative test budget, not a published limit.
 
     const query = new URLSearchParams(window.location.search);
@@ -106,6 +107,7 @@
     settingsLink.href = `settings.html?return=${encodeURIComponent(window.location.href)}`;
 
     const defaults = {
+        provider: "chatgpt", openingLength: "substantial", followupLength: "standard",
         grade: "12",
         granularity: "moderate",
         art: "occasional",
@@ -138,7 +140,12 @@
         const validGrade = /^(?:[5-9]|1[0-2]|undergraduate|graduate|specialist)$/.test(grade)
             ? grade
             : "12";
+        const lengths = {brief: "about 150–300 words", standard: "about 350–650 words", substantial: "about 700–1100 words", extended: "about 1200–1800 words"};
+        const opening = Object.hasOwn(lengths, settings.openingLength) ? settings.openingLength : "substantial";
+        const followup = Object.hasOwn(lengths, settings.followupLength) ? settings.followupLength : "standard";
         const lines = [
+            `Opening response: ${opening} (${lengths[opening]}).`,
+            `Follow-up responses: ${followup} (${lengths[followup]} when warranted). Answer narrow questions narrowly; later reader requests override these targets. Length controls scope, not intellectual difficulty. Avoid padding.`,
             `Reading level: ${validGrade}. Treat this as a preference for expression, not a ceiling on ideas.`,
             `Scholarly granularity: ${settings.granularity}.`,
             `Art and illustration references: ${settings.art}.`,
@@ -189,7 +196,7 @@
         }
 
         lines.push(
-            "Begin with a substantial, provocative opening essay, not a menu. Encourage helical revisiting, " +
+            "Begin with a provocative opening essay at the selected length, not a menu. Encourage helical revisiting, " +
             "defamiliarization, careful scholarship, and unresolved tensions. " +
             "When offering further ChatGPT inquiries, create valid chatgpt.com/?q= links with properly encoded query parameters. " +
             "Invite the reader to dial difficulty up or down."
@@ -198,10 +205,19 @@
         return lines.join("\n\n");
     }
 
-    function chatUrlFor(prompt) {
-        const url = new URL(CHATGPT_URL);
+    function chatUrlFor(prompt, provider) {
+        const url = new URL(provider === "claude" ? CLAUDE_URL : CHATGPT_URL);
         url.searchParams.set("q", prompt); // URLSearchParams encodes spaces as +.
         return url.toString();
+    }
+
+    async function providerEnabled() {
+        try {
+            const response = await fetch("settings.html", {cache: "no-store"});
+            if (!response.ok) return false;
+            const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+            return !!doc.querySelector('select[name="provider"] option[value="claude"]');
+        } catch { return false; }
     }
 
     async function initialize() {
@@ -246,18 +262,22 @@
             }
             console.log("Instructions:", instructionsUrl.href);
             console.log("Odyssey data:", dataUrl.href);
-            const prompt = buildPrompt(instructionsUrl.href, dataUrl.href, readSettings());
-            const launchUrl = chatUrlFor(prompt);
+            const settings = readSettings();
+            const provider = settings.provider === "claude" && await providerEnabled() ? "claude" : "chatgpt";
+            const providerName = provider === "claude" ? "Claude" : "ChatGPT";
+            openButton.textContent = `Open in ${providerName}${provider === "claude" ? " (experimental)" : ""}`;
+            const prompt = buildPrompt(instructionsUrl.href, dataUrl.href, settings);
+            const launchUrl = chatUrlFor(prompt, provider);
             preview.textContent = prompt;
             document.getElementById("description").textContent =
                 `Two text files found. Launch URL: ${launchUrl.length.toLocaleString()} characters. ` +
                 `Source text: ${(instructions.length + data.length).toLocaleString()} characters (not embedded).`;
             status.textContent = launchUrl.length > MAX_TEST_URL_LENGTH
                 ? "The launch URL exceeds our experimental size budget; try copying the prompt."
-                : "Doorway ready. Read the notice, then choose whether to proceed.";
+                : provider === "claude" ? "Claude launch is experimental. If the prompt does not appear, return here and copy it." : "Doorway ready. Read the notice, then choose whether to proceed.";
 
             if (directLaunch && launchUrl.length <= MAX_TEST_URL_LENGTH) {
-                loadingStatus.textContent = "Opening ChatGPT…";
+                loadingStatus.textContent = `Opening ${providerName}…`;
                 window.location.replace(launchUrl);
                 return;
             }
