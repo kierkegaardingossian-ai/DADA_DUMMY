@@ -72,6 +72,15 @@ A QR code, a weather API, an algorithm, a playlist. The anti-environment is made
 
 What if the playlist is excellent and the listener misses the rain?
 
+images: 
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_1.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_2.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_3.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_4.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_5.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_6.jpg
+https://raw.githubusercontent.com/kierkegaardingossian-ai/DADA_DUMMY/refs/heads/main/images/skullsockando/white_7.jpg
+
 The ontological necessity of Felix Defenestratus Spazzatura Bianca Meterologinuto Skullsockando remains undemonstrated.
 
 cats like neither weather nor music.
